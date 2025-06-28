@@ -6,11 +6,13 @@ import Image from "next/image"
 import { Menu, X, Users, FileText, Calendar, Target, Briefcase, Instagram, Layers } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import { usePathname } from "next/navigation"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,7 +103,7 @@ export default function Navbar() {
                 className={`${
                   activeSection === item.href.substring(1) ||
                   (item.href === "/" && activeSection === "home") ||
-                  (item.href === "/about-us" && window.location.pathname === "/about-us")
+                  (item.href === "/about-us" && pathname === "/about-us")
                     ? "text-[#3F51B5]"
                     : "text-[#374151] hover:text-[#3F51B5]"
                 }`}
@@ -111,7 +113,7 @@ export default function Navbar() {
                   className={`absolute bottom-0 left-0 h-0.5 bg-[#3F51B5] transition-all duration-300 ${
                     activeSection === item.href.substring(1) ||
                     (item.href === "/" && activeSection === "home") ||
-                    (item.href === "/about-us" && window.location.pathname === "/about-us")
+                    (item.href === "/about-us" && pathname === "/about-us")
                       ? "w-full"
                       : "w-0 group-hover:w-full"
                   }`}
@@ -158,7 +160,7 @@ export default function Navbar() {
                 className={`text-sm uppercase tracking-wider py-2 transition-colors ${
                   activeSection === item.href.substring(1) ||
                   (item.href === "/" && activeSection === "home") ||
-                  (item.href === "/about-us" && window.location.pathname === "/about-us")
+                  (item.href === "/about-us" && pathname === "/about-us")
                     ? "text-[#3F51B5]"
                     : "text-[#374151] hover:text-[#3F51B5]"
                 }`}
