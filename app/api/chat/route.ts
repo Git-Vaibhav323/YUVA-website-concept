@@ -1,6 +1,5 @@
-import { StreamingTextResponse } from "ai"
+import { streamText } from "ai"
 import { xai } from "@ai-sdk/xai"
-import { generateText } from "ai"
 
 export async function POST(req: Request) {
   try {
@@ -16,33 +15,40 @@ export async function POST(req: Request) {
       - YUVA's motto is "TODAY'S EFFORT FOR A BETTER FUTURE"
       - YUVA focuses on four domains: Networking, Entrepreneurship, Social Responsibility, and Leadership
       - YUVA organizes events like leadership summits, hackathons, and community service projects
+      - YUVA was established in 2008 as part of Young Indians (Yi)
+      - YUVA creates platforms for students and young professionals to connect and collaborate
       
-      Be friendly, informative, and helpful. If you don't know something specific about YUVA, 
-      suggest that the user contact the YUVA team directly for the most accurate information.
-      
-      Keep responses concise and relevant to YUVA and its activities.
+      Be friendly, informative, and helpful. Keep responses concise and relevant to YUVA and its activities.
+      Use emojis occasionally to make conversations more engaging.
+      If you don't know something specific about YUVA, suggest that the user contact the YUVA team directly.
     `
 
-    // Format the conversation for the AI
-    const formattedMessages = messages.map((message: any) => ({
-      role: message.role,
-      content: message.content,
-    }))
-
-    // Generate a response using Grok
-    const response = await generateText({
-      model: xai("grok-1"),
-      prompt: formattedMessages.map((m: any) => `${m.role}: ${m.content}`).join("\n"),
+    // Generate a streaming response using Grok
+    const result = await streamText({
+      model: xai("grok-beta"),
       system: systemPrompt,
+      messages: messages.map((message: any) => ({
+        role: message.role,
+        content: message.content,
+      })),
+      maxTokens: 500,
+      temperature: 0.7,
     })
 
-    // Return a streaming response
-    return new StreamingTextResponse(response.textStream)
+    return result.toDataStreamResponse()
   } catch (error) {
     console.error("Error in chat route:", error)
-    return new Response(JSON.stringify({ error: "Failed to process chat request" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    })
+
+    // Return a fallback response if there's an error
+    return new Response(
+      JSON.stringify({
+        error:
+          "I'm having trouble connecting right now. Please try again in a moment or contact our team directly for assistance.",
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    )
   }
 }

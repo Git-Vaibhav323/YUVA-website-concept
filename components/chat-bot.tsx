@@ -13,7 +13,7 @@ export default function ChatBot() {
   const [mounted, setMounted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error, setInput } = useChat({
     api: "/api/chat",
     initialMessages: [
       {
@@ -22,6 +22,9 @@ export default function ChatBot() {
         content: "Hi there! 👋 I'm the YUVA Assistant. How can I help you today?",
       },
     ],
+    onError: (error) => {
+      console.error("Chat error:", error)
+    },
   })
 
   // Scroll to bottom of messages
@@ -36,6 +39,16 @@ export default function ChatBot() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleQuickAction = (message: string) => {
+    setInput(message)
+    // Auto-submit the message
+    const syntheticEvent = {
+      preventDefault: () => {},
+      target: { elements: { message: { value: message } } },
+    } as any
+    handleSubmit(syntheticEvent)
+  }
 
   if (!mounted) return null
 
@@ -171,7 +184,7 @@ export default function ChatBot() {
                       >
                         <div className="bg-red-50 border border-red-200 rounded-xl p-3">
                           <p className="text-red-600 text-sm font-medium">
-                            ⚠️ Something went wrong. Please try again or contact support.
+                            ⚠️ I'm having trouble connecting right now. Please try again in a moment!
                           </p>
                         </div>
                       </motion.div>
@@ -238,22 +251,25 @@ export default function ChatBot() {
                     </form>
 
                     {/* Quick actions */}
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex gap-2 mt-3 flex-wrap">
                       <button
-                        onClick={() => handleInputChange({ target: { value: "Tell me about YUVA" } } as any)}
+                        onClick={() => handleQuickAction("Tell me about YUVA")}
                         className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+                        disabled={isLoading}
                       >
                         About YUVA
                       </button>
                       <button
-                        onClick={() => handleInputChange({ target: { value: "How can I join?" } } as any)}
+                        onClick={() => handleQuickAction("How can I join YUVA?")}
                         className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+                        disabled={isLoading}
                       >
                         How to join?
                       </button>
                       <button
-                        onClick={() => handleInputChange({ target: { value: "Upcoming events" } } as any)}
+                        onClick={() => handleQuickAction("What are the upcoming events?")}
                         className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+                        disabled={isLoading}
                       >
                         Events
                       </button>
